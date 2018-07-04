@@ -1,0 +1,38 @@
+/* More body padding if screen is 576px or wider, so navbar doesn't hide body */
+@media (min-width: 576px) {
+  body {
+    padding-top: 60px; } }
+@media (max-width: 575px) {
+  body {
+    padding-top: 180px; } }
+/* Navbar */
+.navbar-brand {
+  color: #5bd0ff !important;
+  font-weight: 600 !important; }
+
+.navbar {
+  background-color: black !important; }
+
+.row {
+  padding: 10px; }
+
+body {
+  background-color: #4C5160;
+  color: white; }
+
+/* Links */
+.container a:link, .container a:visited, .container a:hover, .container a:active {
+  text-decoration-line: underline;
+  font-weight: 500; }
+
+.container a:link, .container a:visited {
+  color: #5bd0ff; }
+
+.container a:hover, .container a:active {
+  color: #c9cacf; }
+
+::selection {
+  color: white;
+  background-color: black; }
+
+/*# sourceMappingURL=style.css.map */

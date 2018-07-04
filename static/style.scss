@@ -1,0 +1,56 @@
+$darkgrey: #4C5160;
+$lightgrey: #c9cacf;
+$lightblue: #5bd0ff;
+
+
+/* More body padding if screen is 576px or wider, so navbar doesn't hide body */
+@media (min-width: 576px) {
+    body {
+      padding-top: 60px;
+    }
+}
+@media (max-width: 575px) {
+    body {
+      padding-top: 180px;
+    }
+}
+
+
+/* Navbar */
+.navbar-brand {
+    color: $lightblue !important;
+    font-weight: 600 !important;
+}
+.navbar {
+    background-color: black !important;
+}
+
+
+.row {
+    padding: 10px;
+}
+
+body {
+    background-color: $darkgrey;
+    color: white;
+}
+
+/* Links */
+%link {
+    text-decoration-line: underline;
+    font-weight: 500;
+}
+.container a:link, .container a:visited {
+    @extend %link;
+    color: $lightblue;
+
+}
+.container a:hover, .container a:active {
+    @extend %link;
+    color: $lightgrey;
+}
+
+::selection {
+    color: white;
+    background-color: black;
+}
