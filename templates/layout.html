@@ -16,11 +16,11 @@
 
     <body>
         <nav class="navbar navbar-expand-sm fixed-top navbar-dark bg-dark">
-            <a class="navbar-brand" href="index.html">Leony's Website</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}">Leony's Website</a>
             <div class="navbar-collapse">
                 <ul class="navbar-nav">
-                    <li class="nav-item"><a href="#" class="nav-link">Page 1</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">Page 2</a></li>
+                    <li class="nav-item"><a href="{{ url_for('login') }}" class="nav-link">Log In</a></li>
+                    <li class="nav-item"><a href="{{ url_for('register') }}" class="nav-link">Register</a></li>
                     <li class="nav-item"><a href="#" class="nav-link">Page 3</a></li>
                 </ul>
             </div>
