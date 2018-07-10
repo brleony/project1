@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Location information
+{% endblock %}
+
+{% block main %}
+    <div class="container">
+            <div class="row">
+                <div class="col">
+                    This is the page for location with zipcode: {{ location.zipcode }}.
+                </div>
+            </div>
+    </div>
+{% endblock %}

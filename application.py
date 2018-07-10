@@ -35,8 +35,26 @@ def search():
         return render_template("search.html")
 
     query = request.form.get("query")
+    q = "%" + query + "%"
 
-    return render_template("search.html", query=query)
+    locations = db.execute("SELECT * FROM locations WHERE zipcode LIKE :q", {"q": q}).fetchall()
+
+    for location in locations:
+        print(location[2])
+
+    return render_template("search.html", query=query, locations=locations)
+
+@app.route("/location", methods=["GET"])
+def location():
+    """Display information about a location."""
+
+    location_id = request.args.get("location_id")
+
+    location = db.execute("SELECT * FROM locations WHERE location_id = :location_id", {"location_id": location_id}).fetchone()
+
+    print(location)
+
+    return render_template("location.html", location=location)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -78,7 +96,7 @@ def login():
 
     # Redirect user to home page.
     flash("Welcome back, " + rows[0][3] + "!")
-    return redirect(url_for("index"))
+    return redirect(url_for("search"))
 
 
 @app.route("/logout")

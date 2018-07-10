@@ -14,10 +14,10 @@
                     <form action="{{ url_for('search') }}" method="post">
                         <fieldset>
                             <div class="form-group">
-                                <label for="query"></label>
+                                <label for="query">City or postal code</label>
                                 <input autocomplete="off" autofocus class="form-control" name="query" id="query" type="text"/>
                                 <small id="query_help" class="form-text text-muted">
-                                    Enter a ZIP code or the name of a town.
+                                    Enter the name of a town or city or a ZIP code.
                                 </small>
                             </div>
                             <div class="form-group">
@@ -28,6 +28,24 @@
                     {% if query %}
                         <div>You have searched for: <strong>{{ query }}</strong></div>
                     {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <table class="table table-sm">
+                        <thead class="thead-dark">
+                            <th scope="col">Zipcode</th>
+                            <th scope="col">Location</th>
+                        </thead>
+                        <tbody>
+                        {% for location in locations %}
+                            <tr>
+                                <td>{{ location.zipcode }}</td>
+                                <td><a href="{{ url_for('location', location_id=location.location_id) }}">{{ location.locationname_id }}</a></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
     </div>
