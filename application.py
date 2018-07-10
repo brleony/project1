@@ -26,6 +26,18 @@ db = scoped_session(sessionmaker(bind=engine))
 def index():
     return render_template("index.html")
 
+@app.route("/search", methods=["GET", "POST"])
+def search():
+    """Search for locations that match query."""
+
+    # If user visits page, render search.html
+    if request.method == "GET":
+        return render_template("search.html")
+
+    query = request.form.get("query")
+
+    return render_template("search.html", query=query)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

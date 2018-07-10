@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Search location
+{% endblock %}
+
+{% block main %}
+    <div class="container">
+            <div class="row">
+                <div class="col">
+                    {% if error %}
+                        <div class="alert alert-dark"><strong>Error:</strong> {{ error }}</div>
+                    {% endif %}
+                    <form action="{{ url_for('search') }}" method="post">
+                        <fieldset>
+                            <div class="form-group">
+                                <label for="query"></label>
+                                <input autocomplete="off" autofocus class="form-control" name="query" id="query" type="text"/>
+                                <small id="query_help" class="form-text text-muted">
+                                    Enter a ZIP code or the name of a town.
+                                </small>
+                            </div>
+                            <div class="form-group">
+                                <button class="btn btn-secondary" type="submit">Search</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                    {% if query %}
+                        <div>You have searched for: <strong>{{ query }}</strong></div>
+                    {% endif %}
+                </div>
+            </div>
+    </div>
+{% endblock %}
