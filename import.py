@@ -21,14 +21,26 @@ db = scoped_session(sessionmaker(bind=engine))
 
 # Open csv with zip codes.
 with open('zips.csv', newline='') as csvfile:
-    datareader = csv.reader(csvfile)
 
-    location_names = set()
+    datareader = csv.DictReader(csvfile)
 
-    # Print rows.
-    for row in datareader:
-        location_names.add(row[1] + ', ' + row[2])
+    # TODO
+    for i, row in enumerate(datareader):
 
-    print(len(location_names))
+        db.execute(
+            "DO $$"
+                " BEGIN INSERT INTO locationnames (city, state) VALUES (:city, :state);"
+                " EXCEPTION WHEN unique_violation THEN RAISE NOTICE 'row skipped';"
+            " END; $$",
+            {"city": row["City"], "state": row["State"]})
 
-# db.execute()
+        locationname_id = db.execute("SELECT locationname_id FROM locationnames WHERE city = :city AND state = :state",
+            {"city": row["City"], "state": row["State"]}).fetchone()
+
+        db.execute("INSERT INTO locations (zipcode, locationname_id, latitude, longitude, population) VALUES (:zipcode, :locationname_id, :latitude, :longitude, :population)",
+            {"zipcode": row["Zipcode"], "locationname_id": locationname_id[0], "latitude": row["Lat"], "longitude": row["Long"], "population": row["Population"]})
+
+        print(i, row["Zipcode"])
+
+    # Commit to database.
+    db.commit()
