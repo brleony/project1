@@ -1,3 +1,9 @@
+/* Dark green */
+/* Almost black */
+/* Grey */
+/* Teal */
+/* Ice blue */
+/* Almost white */
 /* More body padding if screen is 576px or wider, so navbar doesn't hide body */
 @media (min-width: 576px) {
   body {
@@ -11,20 +17,31 @@ form {
   /* Override Bootstrap's 100% width for form controls */
   width: auto; }
 
+input {
+  background-color: #E3F2F1 !important; }
+
 /* Navbar */
 .navbar-brand {
-  color: #5bd0ff !important;
-  font-weight: 600 !important; }
+  color: #569DA5 !important;
+  font-weight: 700 !important; }
 
 .navbar {
-  background-color: black !important; }
+  background-color: #111516 !important; }
+
+.nav-item a:link, .nav-item a:visited {
+  color: #79909B !important;
+  font-weight: 500 !important; }
+
+.nav-item a:hover, .nav-item a:active {
+  color: #B7D5D4 !important;
+  font-weight: 500 !important; }
 
 .row {
   padding: 10px; }
 
 body {
-  background-color: #4C5160;
-  color: white; }
+  background-color: #2C4B4B;
+  color: #E3F2F1; }
 
 .col {
   /* center contents */
@@ -38,13 +55,16 @@ body {
   font-weight: 500; }
 
 .container a:link, .container a:visited {
-  color: #5bd0ff; }
+  color: #569DA5; }
 
 .container a:hover, .container a:active {
-  color: #c9cacf; }
+  color: #79909B; }
+
+.text-muted {
+  color: #79909B !important; }
 
 ::selection {
-  color: white;
-  background-color: black; }
+  color: #E3F2F1;
+  background-color: #111516; }
 
 /*# sourceMappingURL=style.css.map */

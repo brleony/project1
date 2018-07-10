@@ -14,19 +14,32 @@
                     <form action="{{ url_for('register') }}" method="post">
                         <fieldset>
                             <div class="form-group">
-                                <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text"/>
+                                <label for="username">Username</label>
+                                <input autocomplete="off" autofocus class="form-control" name="username" id="username" type="text"/>
+                                <small id="username_help" class="form-text text-muted">
+                                    You will use this name to login to the website. Has to be unique.
+                                </small>
                             </div>
                             <div class="form-group">
-                                <input autocomplete="off" autofocus class="form-control" name="first_name" placeholder="First name" type="text"/>
+                                <label for="first_name">First name</label>
+                                <input autocomplete="off" autofocus class="form-control" name="first_name" id="first_name" type="text"/>
+                                <small id="first_name_help" class="form-text text-muted">
+                                    This does not need to be your real name.
+                                </small>
                             </div>
                             <div class="form-group">
-                                <input class="form-control" name="password_1" placeholder="Password" type="password"/>
+                                <label for="password_1">Password</label>
+                                <input class="form-control" name="password_1" id="password_1" type="password"/>
+                                <small id="password_1_help" class="form-text text-muted">
+                                    Needs to be 8 characters or longer.
+                                </small>
                             </div>
                             <div class="form-group">
-                                <input class="form-control" name="password_2" placeholder="Confirm password" type="password"/>
+                                <label for="password_2">Confirm password</label>
+                                <input class="form-control" name="password_2" id="password_2" type="password"/>
                             </div>
                             <div class="form-group">
-                                <button class="btn btn-default" type="submit">Register</button>
+                                <button class="btn btn-secondary" type="submit">Register</button>
                             </div>
                         </fieldset>
                     </form>

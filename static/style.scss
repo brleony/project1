@@ -1,6 +1,9 @@
-$darkgrey: #4C5160;
-$lightgrey: #c9cacf;
-$lightblue: #5bd0ff;
+$background: #2C4B4B;    /* Dark green */
+$background_dark: #111516; /* Almost black */
+$accent_1: #79909B;    /* Grey */
+$accent_2: #569DA5;    /* Teal */
+$accent_3: #B7D5D4;    /* Ice blue */
+$textcolor: #E3F2F1;    /* Almost white */
 
 
 /* More body padding if screen is 576px or wider, so navbar doesn't hide body */
@@ -22,14 +25,25 @@ form {
     /* Override Bootstrap's 100% width for form controls */
     width: auto;
 }
+input {
+    background-color: $textcolor !important;
+}
 
 /* Navbar */
 .navbar-brand {
-    color: $lightblue !important;
-    font-weight: 600 !important;
+    color: $accent_2 !important;
+    font-weight: 700 !important;
 }
 .navbar {
-    background-color: black !important;
+    background-color: $background_dark !important;
+}
+.nav-item a:link, .nav-item a:visited {
+    color: $accent_1 !important;
+    font-weight: 500 !important;
+}
+.nav-item a:hover, .nav-item a:active {
+    color: $accent_3 !important;
+    font-weight: 500 !important;
 }
 
 
@@ -38,8 +52,8 @@ form {
 }
 
 body {
-    background-color: $darkgrey;
-    color: white;
+    background-color: $background;
+    color: $textcolor;
 }
 
 .col {
@@ -56,15 +70,19 @@ body {
 }
 .container a:link, .container a:visited {
     @extend %link;
-    color: $lightblue;
+    color: $accent_2;
 
 }
 .container a:hover, .container a:active {
     @extend %link;
-    color: $lightgrey;
+    color: $accent_1;
+}
+
+.text-muted {
+    color: $accent_1 !important;
 }
 
 ::selection {
-    color: white;
-    background-color: black;
+    color: $textcolor;
+    background-color: $background_dark;
 }
