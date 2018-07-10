@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, session, render_template, request, redirect, url_for
+from flask import Flask, session, render_template, request, redirect, url_for, flash
 from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy import create_engine
@@ -27,9 +27,57 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/login", methods=["GET"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template("login.html")
+    """Log user in."""
+
+    # Forget any user_id
+    session.clear()
+
+    # If user visits page, render login.html
+    if request.method == "GET":
+        return render_template("login.html")
+
+    error = None
+
+    # Ensure username was submitted.
+    username = request.form.get("username")
+    if not username:
+        error = "Must provide username."
+        return render_template("login.html", error=error)
+
+    # Ensure password was submitted.
+    password = request.form.get("password")
+    if not password:
+        error = "Must provide password."
+        return render_template("login.html", error=error)
+
+    # Query database for username.
+    rows = db.execute("SELECT * FROM users WHERE username = :username",
+        {"username": username}).fetchall()
+
+    # Ensure username exists and password is correct.
+    if len(rows) != 1 or not pwd_context.verify(password, rows[0][2]):
+        error = "Invalid username and/or password"
+        return render_template("login.html", error=error)
+
+    # Remember which user has logged in.
+    session["user_id"] = rows[0]
+
+    # Redirect user to home page.
+    flash("Welcome back, " + rows[0][3] + "!")
+    return redirect(url_for("index"))
+
+
+@app.route("/logout")
+def logout():
+    """Log user out."""
+
+    # Forget any user_id.
+    session.clear()
+
+    # Redirect user to index form.
+    return redirect(url_for("index"))
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -88,4 +136,5 @@ def register():
     db.commit()
 
     # Redirect user to home page.
+    flash("Thank you for creating an account, " + first_name + ".")
     return redirect(url_for("index"))
