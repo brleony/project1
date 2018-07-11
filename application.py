@@ -52,9 +52,24 @@ def location():
 
     location = db.execute("SELECT * FROM locations WHERE location_id = :location_id", {"location_id": location_id}).fetchone()
 
-    print(location)
+    checkins = db.execute("SELECT * FROM checkins WHERE location_id = :location_id", {"location_id": location_id}).fetchall()
 
-    return render_template("location.html", location=location)
+    numcheckins = len(checkins)
+
+    print(checkins)
+    print(len(checkins))
+
+    return render_template("location.html", location=location, checkins=checkins, numcheckins=numcheckins)
+
+@app.route("/mycheckins", methods=["GET"])
+def mycheckins():
+    """Display all checkins by the logged in user"""
+
+    user_id = int(session["user_id"][0])
+
+    checkins = db.execute("SELECT * FROM checkins WHERE user_id = :user_id", {"user_id": user_id}).fetchall()
+
+    return render_template("mycheckins.html", checkins=checkins)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -94,7 +109,7 @@ def login():
     # Remember which user has logged in.
     session["user_id"] = rows[0]
 
-    # Redirect user to home page.
+    # Redirect user to search page.
     flash("Welcome back, " + rows[0][3] + "!")
     return redirect(url_for("search"))
 
@@ -107,6 +122,7 @@ def logout():
     session.clear()
 
     # Redirect user to index form.
+    flash("Successfully logged out.")
     return redirect(url_for("index"))
 
 

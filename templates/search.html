@@ -32,20 +32,22 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <table class="table table-sm">
-                        <thead class="thead-dark">
-                            <th scope="col">Zipcode</th>
-                            <th scope="col">Location</th>
-                        </thead>
-                        <tbody>
-                        {% for location in locations %}
-                            <tr>
-                                <td>{{ location.zipcode }}</td>
-                                <td><a href="{{ url_for('location', location_id=location.location_id) }}">{{ location.locationname_id }}</a></td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                    {% if locations %}
+                        <table class="table table-sm">
+                            <thead class="thead-dark">
+                                <th scope="col">Zipcode</th>
+                                <th scope="col">Location</th>
+                            </thead>
+                            <tbody>
+                            {% for location in locations %}
+                                <tr>
+                                    <td>{{ location.zipcode }}</td>
+                                    <td><a href="{{ url_for('location', location_id=location.location_id) }}">{{ location.locationname_id }}</a></td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
                 </div>
             </div>
     </div>

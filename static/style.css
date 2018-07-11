@@ -36,8 +36,11 @@ input {
   color: #B7D5D4 !important;
   font-weight: 500 !important; }
 
+.jumbotron {
+  background-color: transparent !important; }
+
 .row {
-  padding: 10px; }
+  padding: 50px; }
 
 body {
   background-color: #2C4B4B;

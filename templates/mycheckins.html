@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    My checkins
+{% endblock %}
+
+{% block main %}
+    <div class="container">
+            <div class="row">
+                <div class="col">
+                    {% if checkins %}
+                        <table class="table table-sm">
+                            <thead class="thead-dark">
+                                <th scope="col">Location</th>
+                                <th scope="col">Time</th>
+                                <th scope="col">Comment</th>
+                            </thead>
+                            <tbody>
+                            {% for checkin in checkins %}
+                                <tr>
+                                    <td>{{ checkin.zipcode }}</td>
+                                    <td>{{ checkin.time }}</td>
+                                    <td>{{ checkin.comment }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <h4>You don't have any checkins.</h4>
+                        Would you like to <a href="{{ url_for('search') }}">look up</a> a location?
+                    {% endif %}
+                </div>
+            </div>
+    </div>
+{% endblock %}
