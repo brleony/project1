@@ -5,6 +5,7 @@ from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -44,20 +45,24 @@ def search():
 
     return render_template("search.html", query=query, locations=locations)
 
-@app.route("/location", methods=["GET"])
+@app.route("/location", methods=["GET", "POST"])
 def location():
     """Display information about a location."""
 
     location_id = request.args.get("location_id")
+
+    if request.method == "POST":
+        comment = request.form.get("comment")
+
+        db.execute("INSERT INTO checkins (time, comment, user_id, location_id) VALUES (:time, :comment, :user_id, :location_id)",
+                    {"time": str(datetime.now()), "comment": comment, "user_id": int(session["user_id"][0]), "location_id": location_id})
+        db.commit()
 
     location = db.execute("SELECT * FROM locations WHERE location_id = :location_id", {"location_id": location_id}).fetchone()
 
     checkins = db.execute("SELECT * FROM checkins WHERE location_id = :location_id", {"location_id": location_id}).fetchall()
 
     numcheckins = len(checkins)
-
-    print(checkins)
-    print(len(checkins))
 
     return render_template("location.html", location=location, checkins=checkins, numcheckins=numcheckins)
 

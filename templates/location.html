@@ -18,5 +18,43 @@
                 <h1 class="display-4">21°C // 70°F</h1>
             </div>
         </div>
+        <div class="row">
+            <div class="col">
+                <form action="{{ url_for('location', location_id=location.location_id) }}" method="post">
+                    <fieldset>
+                        <div class="form-group">
+                            <label for="comment">Comment</label>
+                            <input autocomplete="off" autofocus class="form-control" name="comment" id="comment" type="text"/>
+                            <small id="comment_help" class="form-text text-muted">
+                                You can leave this field blank.
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-secondary" type="submit">Check In</button>
+                        </div>
+                    </fieldset>
+                </form>
+                {% if checkins %}
+                    <table class="table table-sm">
+                        <thead class="thead-dark">
+                            <th scope="col">Location</th>
+                            <th scope="col">User</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">Comment</th>
+                        </thead>
+                        <tbody>
+                        {% for checkin in checkins %}
+                            <tr>
+                                <td>{{ checkin.zipcode }}</td>
+                                <td>{{ checkin.user_id }}</td>
+                                <td>{{ checkin.time }}</td>
+                                <td>{{ checkin.comment }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </div>
     </div>
 {% endblock %}
