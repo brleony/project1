@@ -22,6 +22,7 @@ Session(app)
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
+api_key = os.getenv('API_KEY')
 
 @app.route("/")
 def index():
@@ -30,6 +31,12 @@ def index():
 @app.route("/api/<zipcode>")
 def api(zipcode):
     """Return details about a location."""
+
+    # Make sure user is logged in.
+    try:
+        session["user_id"]
+    except KeyError:
+        return jsonify({"error": "User not logged in"}), 401
 
     # Query database for location.
     locations = db.execute("SELECT * FROM locations JOIN locationnames ON locationnames.locationname_id = locations.locationname_id WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
@@ -55,6 +62,12 @@ def api(zipcode):
 def search():
     """Search for locations that match query."""
 
+    # Make sure user is logged in.
+    try:
+        session["user_id"]
+    except KeyError:
+        return redirect(url_for("login"))
+
     # If user visits page, render search.html
     if request.method == "GET":
         return render_template("search.html")
@@ -77,6 +90,12 @@ def search():
 def location():
     """Display information about a location."""
 
+    # Make sure user is logged in.
+    try:
+        session["user_id"]
+    except KeyError:
+        return redirect(url_for("login"))
+
     location_id = request.args.get("location_id")
 
     # If form was submitted, check in.
@@ -98,7 +117,7 @@ def location():
 
     # Format request to Dark Sky API.
     latitude, longitude = location["latitude"], location["longitude"]
-    res = requests.get(f"https://api.darksky.net/forecast/d42f9950f8cdec7be86d4b48b0acfc38/{latitude},{longitude}")
+    res = requests.get(f"https://api.darksky.net/forecast/{api_key}/{latitude},{longitude}")
 
     # Check that request worked.
     if res.status_code != 200:
@@ -121,8 +140,13 @@ def location():
 def mycheckins():
     """Display all checkins by the logged in user"""
 
-    user_id = int(session["user_id"][0])
+    # Make sure user is logged in.
+    try:
+        user_id = int(session["user_id"][0])
+    except KeyError:
+        return redirect(url_for("login"))
 
+    # Query database for checkins.
     checkins = db.execute("SELECT * FROM checkins JOIN locations ON locations.location_id = checkins.location_id WHERE user_id = :user_id", {"user_id": user_id}).fetchall()
 
     return render_template("mycheckins.html", checkins=checkins)
@@ -183,6 +207,9 @@ def logout():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user."""
+
+    # Forget any user_id
+    session.clear()
 
     # If user visits page, render register.html
     if request.method == "GET":

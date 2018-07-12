@@ -9,7 +9,11 @@
             <div class="row">
                 <div class="col">
                     <h1 class="display-4">Welcome to Weather.expert</h1>
-                    <p>Would you like to <a href="{{ url_for('search') }}">look up</a> a location?</p>
+                    {% if session.user_id %}
+                        <p>Would you like to <a href="{{ url_for('search') }}">look up</a> a location?</p>
+                    {% else %}
+                        <p><a href="{{ url_for('register') }}">Register</a> or <a href="{{ url_for('login') }}">log in</a> to look up a location.</p>
+                    {% endif %}
                 </div>
             </div>
     </div>
