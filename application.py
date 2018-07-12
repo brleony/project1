@@ -1,6 +1,6 @@
-import os
+import os, requests
 
-from flask import Flask, session, render_template, request, redirect, url_for, flash
+from flask import Flask, session, render_template, request, redirect, url_for, flash, jsonify
 from flask_session import Session
 from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy import create_engine
@@ -27,6 +27,30 @@ db = scoped_session(sessionmaker(bind=engine))
 def index():
     return render_template("index.html")
 
+@app.route("/api/<zipcode>")
+def api(zipcode):
+    """Return details about a location."""
+
+    # Query database for location.
+    locations = db.execute("SELECT * FROM locations JOIN locationnames ON locationnames.locationname_id = locations.locationname_id WHERE zipcode = :zipcode", {"zipcode": zipcode}).fetchone()
+
+    # Make sure location exists.
+    if not location:
+        return jsonify({"error": "Zipcode not in database"}), 404
+
+    # Get number of checkins by counting num of matching checkins.
+    numcheckins = len(db.execute("SELECT * FROM checkins WHERE location_id = :location_id", {"location_id": locations["location_id"]}).fetchall())
+
+    return jsonify({
+            "place_name": locations["city"],
+            "state": locations["state"],
+            "latitude": float(locations["latitude"]),
+            "longitude": float(locations["longitude"]),
+            "zip": locations["zipcode"],
+            "population": locations["population"],
+            "check_ins": numcheckins
+        })
+
 @app.route("/search", methods=["GET", "POST"])
 def search():
     """Search for locations that match query."""
@@ -36,12 +60,16 @@ def search():
         return render_template("search.html")
 
     query = request.form.get("query")
-    q = "%" + query + "%"
 
-    locations = db.execute("SELECT * FROM locations WHERE zipcode LIKE :q", {"q": q}).fetchall()
+    if not query:
+        flash("Must enter a query.")
+        return render_template("search.html")
 
-    for location in locations:
-        print(location[2])
+    # Change query to uppercase and add %s
+    q = query.upper()
+    q = "%" + q + "%"
+
+    locations = db.execute("SELECT * FROM locations JOIN locationnames ON locationnames.locationname_id = locations.locationname_id WHERE zipcode LIKE :q OR locationnames.city LIKE :q", {"q": q}).fetchall()
 
     return render_template("search.html", query=query, locations=locations)
 
@@ -51,6 +79,7 @@ def location():
 
     location_id = request.args.get("location_id")
 
+    # If form was submitted, check in.
     if request.method == "POST":
         comment = request.form.get("comment")
 
@@ -58,13 +87,35 @@ def location():
                     {"time": str(datetime.now()), "comment": comment, "user_id": int(session["user_id"][0]), "location_id": location_id})
         db.commit()
 
-    location = db.execute("SELECT * FROM locations WHERE location_id = :location_id", {"location_id": location_id}).fetchone()
+    # Query database for location details.
+    location = db.execute("SELECT * FROM locations JOIN locationnames ON locationnames.locationname_id = locations.locationname_id WHERE location_id = :location_id", {"location_id": location_id}).fetchone()
 
-    checkins = db.execute("SELECT * FROM checkins WHERE location_id = :location_id", {"location_id": location_id}).fetchall()
+    # Query database for checkins for this location.
+    checkins = db.execute("SELECT * FROM checkins JOIN users ON users.user_id = checkins.user_id WHERE location_id = :location_id", {"location_id": location_id}).fetchall()
 
+    # Saved number of checkins.
     numcheckins = len(checkins)
 
-    return render_template("location.html", location=location, checkins=checkins, numcheckins=numcheckins)
+    # Format request to Dark Sky API.
+    latitude, longitude = location["latitude"], location["longitude"]
+    res = requests.get(f"https://api.darksky.net/forecast/d42f9950f8cdec7be86d4b48b0acfc38/{latitude},{longitude}")
+
+    # Check that request worked.
+    if res.status_code != 200:
+        raise Exception('ERROR: API request unsuccessful.')
+
+    # Convert request response to JSON.
+    data = res.json()
+    weather = data["currently"]
+
+    # Make weather info easier to read.
+    weather["time"] = datetime.fromtimestamp(int(weather["time"])).strftime('%H:%M:%S UTC')
+    weather["humidity"] = int(weather["humidity"] * 100)
+    weather["temperature"] = int(weather["temperature"])
+    weather["dewPoint"] = int(weather["dewPoint"])
+
+    # Render location page with info about location, checkins and weather.
+    return render_template("location.html", location=location, checkins=checkins, numcheckins=numcheckins, weather=weather)
 
 @app.route("/mycheckins", methods=["GET"])
 def mycheckins():
@@ -72,7 +123,7 @@ def mycheckins():
 
     user_id = int(session["user_id"][0])
 
-    checkins = db.execute("SELECT * FROM checkins WHERE user_id = :user_id", {"user_id": user_id}).fetchall()
+    checkins = db.execute("SELECT * FROM checkins JOIN locations ON locations.location_id = checkins.location_id WHERE user_id = :user_id", {"user_id": user_id}).fetchall()
 
     return render_template("mycheckins.html", checkins=checkins)
 
@@ -88,19 +139,17 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
 
-    error = None
-
     # Ensure username was submitted.
     username = request.form.get("username")
     if not username:
-        error = "Must provide username."
-        return render_template("login.html", error=error)
+        flash("Must provide username.")
+        return render_template("login.html")
 
     # Ensure password was submitted.
     password = request.form.get("password")
     if not password:
-        error = "Must provide password."
-        return render_template("login.html", error=error)
+        flash("Must provide password.")
+        return render_template("login.html")
 
     # Query database for username.
     rows = db.execute("SELECT * FROM users WHERE username = :username",
@@ -108,15 +157,15 @@ def login():
 
     # Ensure username exists and password is correct.
     if len(rows) != 1 or not pwd_context.verify(password, rows[0][2]):
-        error = "Invalid username and/or password"
-        return render_template("login.html", error=error)
+        flash("Invalid username and/or password.")
+        return render_template("login.html")
 
     # Remember which user has logged in.
     session["user_id"] = rows[0]
 
     # Redirect user to search page.
     flash("Welcome back, " + rows[0][3] + "!")
-    return redirect(url_for("search"))
+    return redirect(url_for("index"))
 
 
 @app.route("/logout")
@@ -135,8 +184,6 @@ def logout():
 def register():
     """Register user."""
 
-    error = None
-
     # If user visits page, render register.html
     if request.method == "GET":
         return render_template("register.html")
@@ -144,31 +191,31 @@ def register():
     # Ensure username was submitted.
     username = request.form.get("username")
     if not username:
-        error = "Must provide username."
-        return render_template("register.html", error=error)
+        flash("Must provide username.")
+        return render_template("register.html")
 
     # Ensure first name was submitted.
     first_name = request.form.get("first_name")
     if not first_name:
-        error = "Must provide first name."
-        return render_template("register.html", error=error)
+        flash("Must provide first name.")
+        return render_template("register.html")
 
     # Ensure password was submitted.
     password_1 = request.form.get("password_1")
     if not password_1:
-        error = "Must provide password."
-        return render_template("register.html", error=error)
+        flash("Must provide password.")
+        return render_template("register.html")
 
     # Ensure confirmation password was submitted.
     password_2 = request.form.get("password_2")
     if not password_2:
-        error = "Must confirm password."
-        return render_template("register.html", error=error)
+        flash("Must confirm password.")
+        return render_template("register.html")
 
     # Ensure password and confirmation password are the same.
     if password_1 != password_2:
-        error = "Passwords do not match."
-        return render_template("register.html", error=error)
+        flash("Passwords do not match.")
+        return render_template("register.html")
 
     # Save user credentials.
     hash = pwd_context.hash(password_1)
@@ -177,8 +224,8 @@ def register():
 
     # Ensure that username does not already exist.
     if not result:
-        error = "Username already exists."
-        return render_template("register.html", error=error)
+        flash("Username already exists.")
+        return render_template("register.html")
 
     # Remember which user has logged in.
     rows = db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).fetchone()

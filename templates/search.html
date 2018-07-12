@@ -11,6 +11,7 @@
                 {% if error %}
                     <div class="alert alert-dark"><strong>Error:</strong> {{ error }}</div>
                 {% endif %}
+                <h1 class="display-4">Search</h1>
                 <form action="{{ url_for('search') }}" method="post">
                     <fieldset>
                         <div class="form-group">
@@ -42,7 +43,7 @@
                         {% for location in locations %}
                             <tr>
                                 <td>{{ location.zipcode }}</td>
-                                <td><a href="{{ url_for('location', location_id=location.location_id) }}">{{ location.locationname_id }}</a></td>
+                                <td><a href="{{ url_for('location', location_id=location.location_id) }}">{{ location.city }}, {{ location.state }}</a></td>
                             </tr>
                         {% endfor %}
                         </tbody>

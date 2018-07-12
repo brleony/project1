@@ -8,6 +8,7 @@
     <div class="container">
             <div class="row">
                 <div class="col">
+                    <h1 class="display-4">My Checkins</h1>
                     {% if checkins %}
                         <table class="table table-sm">
                             <thead class="thead-dark">
@@ -18,8 +19,8 @@
                             <tbody>
                             {% for checkin in checkins %}
                                 <tr>
-                                    <td>{{ checkin.zipcode }}</td>
-                                    <td>{{ checkin.time }}</td>
+                                    <td><a href="{{ url_for('location', location_id=checkin.location_id) }}">{{ checkin.zipcode }}</a></td>
+                                    <td>{{ checkin.time }} UTC</td>
                                     <td>{{ checkin.comment }}</td>
                                 </tr>
                             {% endfor %}
