@@ -103,7 +103,7 @@ def location():
         comment = request.form.get("comment")
 
         db.execute("INSERT INTO checkins (time, comment, user_id, location_id) VALUES (:time, :comment, :user_id, :location_id)",
-                    {"time": str(datetime.now()), "comment": comment, "user_id": int(session["user_id"][0]), "location_id": location_id})
+                    {"time": str(datetime.now()), "comment": comment, "user_id": int(session["user_id"]), "location_id": location_id})
         db.commit()
 
     # Query database for location details.
@@ -142,7 +142,7 @@ def mycheckins():
 
     # Make sure user is logged in.
     try:
-        user_id = int(session["user_id"][0])
+        user_id = int(session["user_id"])
     except KeyError:
         return redirect(url_for("login"))
 
